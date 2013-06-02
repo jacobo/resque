@@ -19,4 +19,7 @@ group :test do
   gem "minitest", '4.7.0'
   gem "sinatra"
   gem "capybara", "~> 2.0.3"
+  gem 'pry'
+
+  gem 'ffi-rzmq' #obviously not needed for resque in general, but needed by the ZMQ child processor
 end
