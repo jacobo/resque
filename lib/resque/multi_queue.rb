@@ -56,7 +56,15 @@ module Resque
         queue_names = @queues.map {|queue| queue.redis_name }
         if queue_names.any?
           synchronize do
-            value = @redis.blpop(*(queue_names + [1])) until value
+            if ENV["SLEEP_ON_BLPOP"]
+              value = nil
+              until value
+                value = @redis.blpop(*(queue_names + [1]))
+                sleep 0.1
+              end
+            else
+              value = @redis.blpop(*(queue_names + [1])) until value
+            end
             queue_name, payload = value
           queue = @queue_hash["#{@redis.namespace}:#{queue_name}"]
             [queue, queue.decode(payload)]

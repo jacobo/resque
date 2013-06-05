@@ -79,7 +79,15 @@ module Resque
         end
       else
         synchronize do
-          value = @redis.blpop(@redis_name, 1) until value
+          if ENV["SLEEP_ON_BLPOP"]
+            value = nil
+            until value
+              value = @redis.blpop(@redis_name, 1)
+              sleep 0.1
+            end
+          else
+            value = @redis.blpop(@redis_name, 1) until value
+          end
           decode value.last
         end
       end

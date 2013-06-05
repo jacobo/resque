@@ -4,6 +4,32 @@ require 'bundler/setup'
 require 'redis/namespace'
 require 'minitest/autorun'
 
+Minitest::Unit::TestCase.class_eval do
+  def before_setup
+    puts self.__name__
+    super
+  end
+end
+
+def monitor_and_pry(thread, &block)
+  waiting = Thread.new do
+    sleep 10
+    if ENV["PRY"]
+      require 'pry'
+      block.binding.eval("binding.pry")
+    else
+      thread.kill
+    end
+  end
+  yield
+rescue => e
+  puts e.inspect
+  puts e.backtrace.join("\n")
+  raise e
+ensure
+  waiting.kill
+end
+
 $dir = File.dirname(File.expand_path(__FILE__))
 $LOAD_PATH.unshift $dir + '/../lib'
 require 'resque'

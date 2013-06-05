@@ -14,6 +14,7 @@ group :documentation do
 end
 
 group :test do
+  gem 'pry'
   gem "rack-test", "~> 0.5"
   gem "json"
   gem "minitest", '4.7.0'

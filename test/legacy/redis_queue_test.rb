@@ -10,7 +10,7 @@ describe "Resque::Queue" do
     end
 
     def == other
-      super || @inside == other.inside
+      super || @inside == (other && other.inside)
     end
   end
 
@@ -29,7 +29,8 @@ describe "Resque::Queue" do
     assert_equal x, queue.pop
   end
 
-  it "blocks on pop" do
+  100.times do |i|
+  it "#{i} blocks on pop" do
     queue1 = q
     queue2 = q
 
@@ -37,7 +38,10 @@ describe "Resque::Queue" do
     x = Thing.new
 
     queue2.push x
-    assert_equal x, t.join.value
+    monitor_and_pry(t) do
+      assert_equal x, t.join.value
+    end
+  end
   end
 
   it "nonblocking pop works" do

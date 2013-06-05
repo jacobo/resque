@@ -20,7 +20,8 @@ describe "Resque::MultiQueue" do
     assert_nil queue.poll(1)
   end
 
-  it "blocks on pop" do
+  100.times do |i|
+  it "#{i} blocks on pop" do
     foo   = Resque::Queue.new 'foo', redis, coder
     bar   = Resque::Queue.new 'bar', redis, coder
     queue = Resque::MultiQueue.new([foo, bar], redis)
@@ -29,7 +30,10 @@ describe "Resque::MultiQueue" do
     job = { 'class' => 'GoodJob', 'args' => [35, 'tar'] }
     bar << job
 
-    assert_equal [bar, job], t.join.value
+    monitor_and_pry(t) do
+      assert_equal [bar, job], t.join.value
+    end
+  end
   end
 
   it "nonblocking pop works" do
